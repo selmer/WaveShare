@@ -49,7 +49,7 @@ void setup() {
   display.hibernate();
 }
 
-const char HelloWorld[] = "Hello World!";
+const char HelloWorld[] = "Hello World Moeder!\n\n       Vandaag is het donderdag";
 
 void helloWorld() {
   display.setRotation(2);
@@ -66,12 +66,9 @@ void helloWorld() {
   do {
     display.fillScreen(GxEPD_WHITE);
     display.setCursor(x, y);
-    display.setTextColor(GxEPD_BLACK);
-    display.print("Hello");
     display.setTextColor(GxEPD_RED);
-    display.print(" Moeder");
-    display.setTextColor(GxEPD_BLACK);
-    display.print("Vandaag is het dinsdag");
+    display.print(HelloWorld);    
+    
   } while (display.nextPage());
 }
 
