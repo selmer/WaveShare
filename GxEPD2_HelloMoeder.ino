@@ -7,7 +7,6 @@
 #include <WiFiUdp.h>
 #include <WiFi.h>
 
-
 #include "GxEPD2_display_selection_new_style.h"
 
 //Internet
@@ -15,6 +14,7 @@ WiFiUDP ntpUDP;
 int btnGPIO = 0;
 const char SSID[] = "Maaike en Selmer";
 const char password[] = "Wodan Kissa Maaike";
+char const * wdays[] = {"zondag", "maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag"};
 
 NTPClient timeClient(ntpUDP);
 
@@ -22,8 +22,11 @@ void setup() {
   display.init(115200, true, 2, false);  // USE THIS for Waveshare boards with "clever" reset circuit, 2ms reset pulse
   pinMode(btnGPIO, INPUT);
   setupWiFi();
+
+  timeClient.setTimeOffset(7200);
   timeClient.begin();
-  helloWorld();
+  
+  setDisplay();
   display.hibernate();
 }
 
@@ -32,25 +35,21 @@ void setupWiFi() {
   WiFi.begin(SSID, password);
   while ( WiFi.status() != WL_CONNECTED ) {
   delay ( 500 );
-  }
-  
+  } 
 }
-//const char HelloWorld[] = "Hello World Moeder!\n\n       Vandaag is het donderdag";
 
-void helloWorld() {
+void setDisplay() {
   display.setRotation(2);
   display.setFont(&FreeMonoBold9pt7b);
   display.setTextColor(GxEPD_RED);
   int16_t tbx, tby;
   uint16_t tbw, tbh;
   timeClient.update();
-
-  String helloWorld(timeClient.getFormattedTime());
   
-  char HelloWorld[helloWorld.length()+1];
-  helloWorld.toCharArray(HelloWorld, helloWorld.length());
+  String displayText("Het is vandaag " + String(wdays[timeClient.getDay()]));
 
-  display.getTextBounds(HelloWorld, 0, 0, &tbx, &tby, &tbw, &tbh);
+
+  display.getTextBounds(displayText, 0, 0, &tbx, &tby, &tbw, &tbh);
   // center the bounding box by transposition of the origin:
   uint16_t x = ((display.width() - tbw) / 2) - tbx;
   uint16_t y = ((display.height() - tbh) / 2) - tby;
@@ -60,7 +59,7 @@ void helloWorld() {
     display.fillScreen(GxEPD_WHITE);
     display.setCursor(x, y);
     display.setTextColor(GxEPD_RED);
-    display.print(helloWorld);    
+    display.print(displayText);    
     
   } while (display.nextPage());
 }
