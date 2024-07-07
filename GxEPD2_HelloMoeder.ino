@@ -9,20 +9,26 @@
 
 #include "GxEPD2_display_selection_new_style.h"
 
-//Internet
-WiFiUDP ntpUDP;
 int btnGPIO = 0;
+
+//Wifi Connection
+WiFiUDP ntpUDP;
 const char SSID[] = "Maaike en Selmer";
 const char password[] = "Wodan Kissa Maaike";
-char const * wdays[] = {"zondag", "maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag"};
 
+//NTP
 NTPClient timeClient(ntpUDP);
+unsigned long time_now = 0;
+int period = 1000*60*3;
+//App variables
+char const * wdays[] = {"zondag", "maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag"};
 
 void setup() {
   display.init(115200, true, 2, false);  // USE THIS for Waveshare boards with "clever" reset circuit, 2ms reset pulse
   pinMode(btnGPIO, INPUT);
   setupWiFi();
 
+  //Zomertijd Nederland
   timeClient.setTimeOffset(7200);
   timeClient.begin();
   
@@ -50,6 +56,7 @@ void setDisplay() {
 
 
   display.getTextBounds(displayText, 0, 0, &tbx, &tby, &tbw, &tbh);
+
   // center the bounding box by transposition of the origin:
   uint16_t x = ((display.width() - tbw) / 2) - tbx;
   uint16_t y = ((display.height() - tbh) / 2) - tby;
@@ -64,5 +71,11 @@ void setDisplay() {
   } while (display.nextPage());
 }
 
-void loop(){};
+void loop(){
+  time_now = millis();
+  while (millis() <time_now + period){  }
+  timeClient.update();
+  setDisplay();
+};
+//https://www.digikey.com/en/maker/tutorials/2022/how-to-avoid-using-the-delay-function-in-arduino-sketches
 
